@@ -4,18 +4,23 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import com.SchemaService;
 import com.businessLogic.BusinessLogic;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.schema.SchemaValidator;
+
+// topic list
 import com.topics.LoginRequest;
 import com.topics.LoginResponse;
-import com.topics.MovieTicket;
+import com.topics.MovieTicketRequest;
+import com.topics.MovieTicketResponse;
 import com.topics.NewAccountRequest;
 import com.topics.NewAccountResponse;
 import com.topics.PaymentRequest;
 import com.topics.PaymentResponse;
 import com.topics.SeatRequest;
 import com.topics.SeatResponse;
+
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,8 +33,7 @@ public class MainController {
     private BusinessLogic businessLogic;
     private static final Logger LOG = LoggerFactory.getLogger(BusinessLogic.class);
 
-    public MainController(SchemaValidator schemaValidator, BusinessLogic businessLogic)
-    {
+    public MainController(SchemaValidator schemaValidator, BusinessLogic businessLogic) {
         this.schemaValidator = schemaValidator;
         this.businessLogic = businessLogic;
     }
@@ -45,16 +49,12 @@ public class MainController {
         System.out.println("\n\nJSON: " + jsonString + "\n\n");
         JSONObject jsonNode = new JSONObject(jsonString);
         String topicName = jsonNode.getString("topicName");
-
-        URL schemaUrl = getClass().getClassLoader().getResource("json-schema/payment-request.json");
+        URL schemaUrl = getClass().getClassLoader().getResource(SchemaService.getPathFor(topicName));
         LOG.info("Schema URL: " + schemaUrl);
         InputStream schemaStream = null;
-        try
-        {
-            schemaStream = schemaValidator.getSchemaStream(topicName);
-        }
-        catch(Exception e)
-        {
+        try {
+            schemaStream = schemaValidator.getSchemaStream(SchemaService.getPathFor(topicName));
+        } catch (Exception e) {
             LOG.error(e.getMessage());
         }
 
@@ -64,62 +64,73 @@ public class MainController {
 
         if (schemaValidator.validateJson(schemaStream, jsonNode)) {
             ObjectMapper mapper = new ObjectMapper();
-            try{
-                switch(jsonNode.getString("topicName"))
-                {
-                    case "PaymentRequest": 
-                    {
-                        PaymentRequest paymentRequest = mapper.readValue(jsonNode.toString(), PaymentRequest.class);
+            try {
+                switch (jsonNode.getString("topicName")) {
+                    case "PaymentRequest": {
+                        PaymentRequest paymentRequest =
+                                mapper.readValue(jsonNode.toString(), PaymentRequest.class);
                         businessLogic.processPaymentRequest(paymentRequest);
                     }
-                    case "PaymentResponse":
-                    {
-                        PaymentResponse paymentResponse = mapper.readValue(jsonNode.toString(), PaymentResponse.class);
+                    break;
+                    case "PaymentResponse": {
+                        PaymentResponse paymentResponse =
+                                mapper.readValue(jsonNode.toString(), PaymentResponse.class);
                         businessLogic.processPaymentResponse(paymentResponse);
                     }
-                    case "LoginRequest":
-                    {
-                        LoginRequest loginRequest = mapper.readValue(jsonNode.toString(), LoginRequest.class);
+                    break;
+                    case "LoginRequest": {
+                        LoginRequest loginRequest =
+                                mapper.readValue(jsonNode.toString(), LoginRequest.class);
                         businessLogic.processLoginRequest(loginRequest);
                     }
-                    case "LoginResponse":
-                    {
-                        LoginResponse loginResponse = mapper.readValue(jsonNode.toString(), LoginResponse.class);
+                    break;
+                    case "LoginResponse": {
+                        LoginResponse loginResponse =
+                                mapper.readValue(jsonNode.toString(), LoginResponse.class);
                         businessLogic.processLoginResponse(loginResponse);
                     }
-                    case "NewAccountRequest":
-                    {
-                        NewAccountRequest newAccountRequest = mapper.readValue(jsonNode.toString(), NewAccountRequest.class);
+                    break;
+                    case "NewAccountRequest": {
+                        NewAccountRequest newAccountRequest =
+                                mapper.readValue(jsonNode.toString(), NewAccountRequest.class);
                         businessLogic.processNewAccountRequest(newAccountRequest);
                     }
-                    case "NewAccountResponse":
-                    {
-                        NewAccountResponse newAccountResponse = mapper.readValue(jsonNode.toString(), NewAccountResponse.class);
+                    break;
+                    case "NewAccountResponse": {
+                        NewAccountResponse newAccountResponse =
+                                mapper.readValue(jsonNode.toString(), NewAccountResponse.class);
                         businessLogic.processNewAccountResponse(newAccountResponse);
                     }
-                    case "SeatRequest":
-                    {
-                        SeatRequest seatRequest = mapper.readValue(jsonNode.toString(), SeatRequest.class);
+                    break;
+                    case "SeatRequest": {
+                        SeatRequest seatRequest =
+                                mapper.readValue(jsonNode.toString(), SeatRequest.class);
                         businessLogic.processSeatRequest(seatRequest);
                     }
-                    case "SeatResponse":
-                    {
-                        SeatResponse seatResponse = mapper.readValue(jsonNode.toString(), SeatResponse.class);
+                    break;
+                    case "SeatResponse": {
+                        SeatResponse seatResponse =
+                                mapper.readValue(jsonNode.toString(), SeatResponse.class);
                         businessLogic.processSeatResponse(seatResponse);
                     }
-                    case "MovieTicket":
-                    {
-                        MovieTicket movieTicket = mapper.readValue(jsonNode.toString(), MovieTicket.class);
-                        businessLogic.processMovieTicket(movieTicket);
+                    break;
+                    case "MovieTicketRequest": {
+                        MovieTicketRequest movieTicketRequest =
+                                mapper.readValue(jsonNode.toString(), MovieTicketRequest.class);
+                        businessLogic.processMovieTicketRequest(movieTicketRequest);
                     }
-                    default:
-                    {
+                    break;
+                    case "MovieTicketResponse": {
+                        MovieTicketResponse movieTicketResponse =
+                                mapper.readValue(jsonNode.toString(), MovieTicketResponse.class);
+                        businessLogic.processMovieTicketResponse(movieTicketResponse);
+                    }
+                    break;
+                    default: {
                         LOG.warn("Non-supported Topic: " + topicName);
                     }
                 }
-            }
-            catch(Exception e)
-            {
+            } catch (Exception e) {
                 LOG.error(e.getMessage());
             }
         } else {

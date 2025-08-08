@@ -7,7 +7,6 @@ import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
@@ -15,7 +14,6 @@ import org.springframework.core.io.ResourceLoader;
 public class SchemaValidator {
   private final ResourceLoader resourceLoader;
 
-  @Autowired
   public SchemaValidator(ResourceLoader resourceLoader) {
     this.resourceLoader = resourceLoader;
   }
@@ -34,8 +32,8 @@ public class SchemaValidator {
     return valid;
   }
 
-  public InputStream getSchemaStream(String topicName) {
-    String location = "classpath:json-schema/" + topicName + ".json";
+  public InputStream getSchemaStream(String jsonPath) {
+    String location = "classpath:" + jsonPath;
     Resource resource = resourceLoader.getResource(location);
     System.out.println("Loading schema at: " + location + " | Exists? " + resource.exists());
     try {

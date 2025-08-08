@@ -15,9 +15,8 @@ public class SpringBootConsoleApplication
     private static Logger LOG = LoggerFactory
             .getLogger(SpringBootConsoleApplication.class);
 
-    private static BusinessLogic businessLogic;
-
     public static void main(String[] args) {
+        BusinessLogic businessLogic = new BusinessLogic();
         LOG.info("STARTING THE [API-GATEWAY]");
         SpringApplication.run(SpringBootConsoleApplication.class, args);
         LOG.info("[API-GATEWAY] FINISHED STARTING UP");

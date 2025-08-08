@@ -27,7 +27,8 @@ public class BusinessLogic {
         restRouter.put("LoginRequest", userMangementClient);
         restRouter.put("NewAccountRequest", userMangementClient);
         restRouter.put("SeatRequest", seatingServiceClient);
-        restRouter.put("MovieTicket", movieServiceClient);
+        restRouter.put("MovieTicketRequest", movieServiceClient);
+        restRouter.put("MovieTicketResponse", notificationServiceClient);
         LOG.info("Sucessfully mapped the topics to their respective microservices...");
     }
 
@@ -63,7 +64,11 @@ public class BusinessLogic {
         LOG.info("Received a SeatResponse. Sending the topic to the [GUI]");
     }
 
-    public void processMovieTicket(MovieTicket movieTicket) {
+    public void processMovieTicketRequest(MovieTicketRequest movieTicketRequest) {
         LOG.info("Received a MovieTicket. Sending the topic to the [Movie Service]");
+    }
+    
+    public void processMovieTicketResponse(MovieTicketResponse movieTicketResponse) {
+        LOG.info("Received a MovieTicket. Sending the topic to the [GUI]");
     }
 }
