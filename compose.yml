@@ -57,3 +57,18 @@ services:
       - "traefik.http.routers.kafdrop.rule=Host(`kafdrop.bryzn.com`)"
       - "traefik.http.routers.kafdrop.entrypoints=web"
       - "traefik.http.services.kafdrop.loadbalancer.server.port=9000"
+
+  api-gateway:
+    image: apigw
+    container_name: api-gateway
+    environment:
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    depends_on:
+      kafka:
+        condition: service_healthy
+      kafdrop:
+        condition: service_started
+      traefik:
+        condition: service_started
+    ports:
+      - "8081:8081"

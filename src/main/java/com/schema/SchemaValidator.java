@@ -10,6 +10,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
+/*
+ * Valiation Service for JSON schemas from the internal icd
+ */
 @Service
 public class SchemaValidator {
   private final ResourceLoader resourceLoader;

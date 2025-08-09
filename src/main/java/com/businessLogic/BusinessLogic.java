@@ -8,6 +8,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import com.topics.*;
 
+/*
+ * Handles the business logic for processing various topics and utilizes 
+ * REST clients to communicate with other microservices.
+ */
 @Service
 public class BusinessLogic {
 
@@ -22,6 +26,7 @@ public class BusinessLogic {
 
     private HashMap<String, RestClient> restRouter = new HashMap<>();
 
+    // Method to map topics to their respective microservices
     public void mapTopics() {
         restRouter.put("PaymentRequest", paymentServiceClient);
         restRouter.put("LoginRequest", userMangementClient);
