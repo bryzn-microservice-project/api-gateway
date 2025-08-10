@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+
+import com.kafka.KafkaService;
 import com.topics.*;
 
 /*
@@ -14,7 +16,7 @@ import com.topics.*;
  */
 @Service
 public class BusinessLogic {
-
+    private final KafkaService kafkaService;
     private static final Logger LOG = LoggerFactory.getLogger(BusinessLogic.class);
 
     // REST Clients to communicate with other microservices
@@ -25,6 +27,11 @@ public class BusinessLogic {
     private RestClient notificationServiceClient = RestClient.create();
 
     private HashMap<String, RestClient> restRouter = new HashMap<>();
+
+    public BusinessLogic(KafkaService kafkaService) {
+        this.kafkaService = kafkaService;
+        mapTopics();
+    }
 
     // Method to map topics to their respective microservices
     public void mapTopics() {
@@ -43,6 +50,7 @@ public class BusinessLogic {
 
     public void processPaymentResponse(PaymentResponse paymentResponse) {
         LOG.info("Received a PaymentResponse. Sending the topic to the [GUI]");
+        kafkaService.publishTopic("PaymentResponse", paymentResponse.toString());
     }
 
     public void processLoginRequest(LoginRequest loginRequest) {
@@ -51,6 +59,7 @@ public class BusinessLogic {
 
     public void processLoginResponse(LoginResponse loginResponse) {
         LOG.info("Received a LoginResponse. Sending the topic to the [GUI]");
+        kafkaService.publishTopic("LoginResponse", loginResponse.toString());
     }
 
     public void processNewAccountRequest(NewAccountRequest newAccountRequest) {
@@ -59,6 +68,7 @@ public class BusinessLogic {
 
     public void processNewAccountResponse(NewAccountResponse newAccountResponse) {
         LOG.info("Received a NewAccountResponse. Sending the topic to the [GUI]");
+        kafkaService.publishTopic("NewAccountResponse", newAccountResponse.toString());
     }
 
     public void processSeatRequest(SeatRequest seatRequest) {
@@ -67,6 +77,7 @@ public class BusinessLogic {
 
     public void processSeatResponse(SeatResponse seatResponse) {
         LOG.info("Received a SeatResponse. Sending the topic to the [GUI]");
+        kafkaService.publishTopic("SeatResponse", seatResponse.toString()); 
     }
 
     public void processMovieTicketRequest(MovieTicketRequest movieTicketRequest) {
@@ -75,5 +86,6 @@ public class BusinessLogic {
     
     public void processMovieTicketResponse(MovieTicketResponse movieTicketResponse) {
         LOG.info("Received a MovieTicket. Sending the topic to the [GUI]");
+        kafkaService.publishTopic("MovieTicketResponse", movieTicketResponse.toString());   
     }
 }

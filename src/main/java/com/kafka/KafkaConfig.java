@@ -45,6 +45,7 @@ public class KafkaConfig {
         Map<String, Object> props = new HashMap<>();
         LOG.info("[KAFKA] Configuring Kafka producer (kafka:9092)");
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         // More configs can go here
         return props;
