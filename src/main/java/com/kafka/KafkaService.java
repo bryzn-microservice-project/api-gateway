@@ -20,6 +20,10 @@ public class KafkaService {
         this.kafkaTemplate = kafkaTemplate;
     }
 
+    /*
+     * Method to publish a topic to the Kafka bus. takes in the topic name and the
+     * json string representation of the topic.
+     */
     public void publishTopic(String topicName, String jsonTopic) {
         LOG.info("[KAFKA] Publishing topic: " + topicName);
         kafkaTemplate.send(topicName, jsonTopic);

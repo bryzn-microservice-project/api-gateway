@@ -40,6 +40,12 @@ public class KafkaConfig {
         return new DefaultKafkaProducerFactory<>(producerConfigs());
     }
 
+    /*
+     * Configures the producer with the necessary properties.
+     * This is where you can add more configurations as needed.
+     * NOTE: the application.properties/compose yaml configurations
+     * override these properties.
+     */
     @Bean
     public Map<String, Object> producerConfigs() {
         Map<String, Object> props = new HashMap<>();
@@ -57,6 +63,11 @@ public class KafkaConfig {
                 new FixedBackOff(1000L, 2));
     }
 
+    /*
+     * Creates Kafka topics based on the SchemaService enum. 
+     * NOTE: This method doesnt create duplicate topics if they exist
+     * so I can have this also in the gui service
+     */
     @Bean
     public List<NewTopic> createKafkaTopics() {
         List<NewTopic> topics = Arrays.stream(SchemaService.values())
