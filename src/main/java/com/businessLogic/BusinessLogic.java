@@ -46,22 +46,22 @@ public class BusinessLogic {
     */
     public void mapTopicsToClient() {
         restRouter.put("PaymentRequest", paymentServiceClient);
-        restEndpoints.put(paymentServiceClient, "http://payment-service:8084");
+        restEndpoints.put(paymentServiceClient, "http://payment-service:8084/api/v1/processTopic"); 
 
         restRouter.put("LoginRequest", userMangementClient);
-        restEndpoints.put(userMangementClient, "http://user-management-service:8086");
+        restEndpoints.put(userMangementClient, "http://user-management-service:8086/api/v1/processTopic");
 
         restRouter.put("NewAccountRequest", userMangementClient);
-        restEndpoints.put(userMangementClient, "http://user-management-service:8086");
+        restEndpoints.put(userMangementClient, "http://user-management-service:8086/api/v1/processTopic");
 
         restRouter.put("SeatRequest", seatingServiceClient);
-        restEndpoints.put(seatingServiceClient, "http://seating-service:8085");
+        restEndpoints.put(seatingServiceClient, "http://seating-service:8085/api/v1/processTopic");
 
         restRouter.put("MovieTicketRequest", movieServiceClient);
-        restEndpoints.put(movieServiceClient, "http://movie-service:8082");
+        restEndpoints.put(movieServiceClient, "http://movie-service:8082/api/v1/processTopic");
 
         restRouter.put("MovieTicketResponse", notificationServiceClient);
-        restEndpoints.put(notificationServiceClient, "http://notification-service:8083");
+        restEndpoints.put(notificationServiceClient, "http://notification-service:8083/api/v1/processTopic");
         
         LOG.info("Sucessfully mapped the topics to their respective microservices...");
     }
@@ -73,7 +73,7 @@ public class BusinessLogic {
         LOG.info("Received a PaymentRequest. Sending the topic to the [Payment Service]");
         ResponseEntity<Void> response = restRouter.get("PaymentRequest")
             .post()
-            .uri(restEndpoints.get(restRouter.get("PaymentRequest")) + "/processTopics")
+            .uri(restEndpoints.get(restRouter.get("PaymentRequest")))
             .contentType(MediaType.APPLICATION_JSON)
             .body(paymentRequest)
             .retrieve()
@@ -85,7 +85,7 @@ public class BusinessLogic {
         LOG.info("Received a LoginRequest. Sending the topic to the [User Management]");
         ResponseEntity<Void> response = restRouter.get("LoginRequest")
             .post()
-            .uri(restEndpoints.get(restRouter.get("LoginRequest")) + "/processTopics")
+            .uri(restEndpoints.get(restRouter.get("LoginRequest")))
             .contentType(MediaType.APPLICATION_JSON)
             .body(loginRequest)
             .retrieve()
@@ -97,7 +97,7 @@ public class BusinessLogic {
         LOG.info("Received a NewAccountRequest. Sending the topic to the [User Management]");
         ResponseEntity<Void> response = restRouter.get("NewAccountRequest")
             .post()
-            .uri(restEndpoints.get(restRouter.get("NewAccountRequest")) + "/processTopics")
+            .uri(restEndpoints.get(restRouter.get("NewAccountRequest")))
             .contentType(MediaType.APPLICATION_JSON)
             .body(newAccountRequest)
             .retrieve()
@@ -109,7 +109,7 @@ public class BusinessLogic {
         LOG.info("Received a SeatRequest. Sending the topic to the [Seating Service]");
         ResponseEntity<Void> response = restRouter.get("SeatRequest")
             .post()
-            .uri(restEndpoints.get(restRouter.get("SeatRequest")) + "/processTopics")
+            .uri(restEndpoints.get(restRouter.get("SeatRequest")))
             .contentType(MediaType.APPLICATION_JSON)
             .body(seatRequest)
             .retrieve()
@@ -121,7 +121,7 @@ public class BusinessLogic {
         LOG.info("Received a MovieTicket. Sending the topic to the [Movie Service]");
         ResponseEntity<Void> response = restRouter.get("MovieTicketRequest")
             .post()
-            .uri(restEndpoints.get(restRouter.get("MovieTicketRequest")) + "/processTopics")
+            .uri(restEndpoints.get(restRouter.get("MovieTicketRequest")))
             .contentType(MediaType.APPLICATION_JSON)
             .body(movieTicketRequest)
             .retrieve()
