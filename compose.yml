@@ -3,16 +3,16 @@ services:
     image: confluentinc/cp-kafka:latest
     container_name: kafka
     ports:
-      - "9092:9092"
-      - "9093:9093"
+      - "9092:9092"   # container access
+      - "29092:29092" # host access
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
-      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:29092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       CLUSTER_ID: B1LY1mLYRmq4Ua3Af0HcKg
@@ -33,7 +33,7 @@ services:
       - "--entrypoints.web.address=:80"
     ports:
       - "80:80"      # For HTTP traffic
-      - "8080:8080"  # Traefik dashboard
+      - "9090:8080"  # Traefik dashboard
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     labels:
@@ -57,23 +57,42 @@ services:
       - "traefik.http.routers.kafdrop.rule=Host(`kafdrop.bryzn.com`)"
       - "traefik.http.routers.kafdrop.entrypoints=web"
       - "traefik.http.services.kafdrop.loadbalancer.server.port=9000"
-
-  api-gateway:
-    image: apigw
-    container_name: api-gateway
+  akhq:
+    container_name: akhq
+    image: tchiotludo/akhq
     environment:
-      - SERVER_PORT=8081
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-      - SPRING_CONFIG_LOCATION=file:/app/config/
-      - SPRING_PROFILES_ACTIVE=dev
-    depends_on:
-      kafka:
-        condition: service_healthy
-      kafdrop:
-        condition: service_started
-      traefik:
-        condition: service_started
-    volumes:
-    - ./config/application.properties:/app/config/application.properties
+      AKHQ_CONFIGURATION: |
+        akhq:
+          connections:
+            local:
+              properties:
+                bootstrap.servers: "kafka:9092"
+              connectTimeout: 10000
+              requestTimeout: 20000
     ports:
-      - "8081:8081"
+      - "8080:8080"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.akhq.rule=Host(`akhq.bryzn.com`)"
+      - "traefik.http.routers.akhq.entrypoints=web"
+      - "traefik.http.services.akhq.loadbalancer.server.port=8080"
+
+  # api-gateway:
+  #   image: apigw
+  #   container_name: api-gateway
+  #   environment:
+  #     - SERVER_PORT=8081
+  #     - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+  #     - SPRING_CONFIG_LOCATION=file:/app/config/
+  #     - SPRING_PROFILES_ACTIVE=dev
+  #   depends_on:
+  #     kafka:
+  #       condition: service_healthy
+  #     kafdrop:
+  #       condition: service_started
+  #     traefik:
+  #       condition: service_started
+  #   volumes:
+  #   - ./config/application.properties:/app/config/application.properties
+  #   ports:
+  #     - "8081:8081"

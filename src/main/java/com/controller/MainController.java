@@ -7,20 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.SchemaService;
 import com.businessLogic.BusinessLogic;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.schema.SchemaValidator;
-
-// topic list
-import com.topics.LoginRequest;
-import com.topics.LoginResponse;
-import com.topics.MovieTicketRequest;
-import com.topics.MovieTicketResponse;
-import com.topics.NewAccountRequest;
-import com.topics.NewAccountResponse;
-import com.topics.PaymentRequest;
-import com.topics.PaymentResponse;
-import com.topics.SeatRequest;
-import com.topics.SeatResponse;
 
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -72,37 +59,13 @@ public class MainController {
         }
 
         if (schemaValidator.validateJson(schemaStream, jsonNode)) {
-            ObjectMapper mapper = new ObjectMapper();
             try {
                 switch (jsonNode.getString("topicName")) {
-                    case "PaymentResponse": {
-                        PaymentResponse paymentResponse =
-                                mapper.readValue(jsonNode.toString(), PaymentResponse.class);
-                        businessLogic.processPaymentResponse(paymentResponse);
-                    }
-                        break;
-                    case "LoginResponse": {
-                        LoginResponse loginResponse =
-                                mapper.readValue(jsonNode.toString(), LoginResponse.class);
-                        businessLogic.processLoginResponse(loginResponse);
-                    }
-                        break;
-                    case "NewAccountResponse": {
-                        NewAccountResponse newAccountResponse =
-                                mapper.readValue(jsonNode.toString(), NewAccountResponse.class);
-                        businessLogic.processNewAccountResponse(newAccountResponse);
-                    }
-                        break;
-                    case "SeatResponse": {
-                        SeatResponse seatResponse =
-                                mapper.readValue(jsonNode.toString(), SeatResponse.class);
-                        businessLogic.processSeatResponse(seatResponse);
-                    }
-                        break;
-                    case "MovieTicketResponse": {
-                        MovieTicketResponse movieTicketResponse =
-                                mapper.readValue(jsonNode.toString(), MovieTicketResponse.class);
-                        businessLogic.processMovieTicketResponse(movieTicketResponse);
+                    case "LoginResponse":
+                    case "NewAccountResponse":
+                    case "MovieTicketResponse":
+                    case "MovieListResponse": {
+                        businessLogic.processResponse(jsonString, topicName);
                     }
                         break;
                     default: {
@@ -117,10 +80,10 @@ public class MainController {
         }
     }
 
-    @KafkaListener(topics = {"PaymentRequest", "LoginRequest", "NewAccountRequest", "SeatRequest",
-            "MovieTicketRequest"}, groupId = "api-gateway-group")
+    @KafkaListener(topics = {"LoginRequest", "NewAccountRequest", "MovieTicketRequest",
+            "MovieListRequest"}, groupId = "api-gateway-group")
     public void processKafka(String jsonString) {
-        LOG.info("Received an incoming topic... Processing now!");
+        LOG.info("Received an incoming topic from the bus... Processing now!");
         System.out.println("\n\nJSON: " + jsonString + "\n\n");
         JSONObject jsonNode = new JSONObject(jsonString);
         String topicName = jsonNode.getString("topicName");
@@ -139,37 +102,13 @@ public class MainController {
         }
 
         if (schemaValidator.validateJson(schemaStream, jsonNode)) {
-            ObjectMapper mapper = new ObjectMapper();
             try {
                 switch (jsonNode.getString("topicName")) {
-                    case "PaymentRequest": {
-                        PaymentRequest paymentRequest =
-                                mapper.readValue(jsonNode.toString(), PaymentRequest.class);
-                        businessLogic.processPaymentRequest(paymentRequest);
-                    }
-                        break;
-                    case "LoginRequest": {
-                        LoginRequest loginRequest =
-                                mapper.readValue(jsonNode.toString(), LoginRequest.class);
-                        businessLogic.processLoginRequest(loginRequest);
-                    }
-                        break;
-                    case "NewAccountRequest": {
-                        NewAccountRequest newAccountRequest =
-                                mapper.readValue(jsonNode.toString(), NewAccountRequest.class);
-                        businessLogic.processNewAccountRequest(newAccountRequest);
-                    }
-                        break;
-                    case "SeatRequest": {
-                        SeatRequest seatRequest =
-                                mapper.readValue(jsonNode.toString(), SeatRequest.class);
-                        businessLogic.processSeatRequest(seatRequest);
-                    }
-                        break;
-                    case "MovieTicketRequest": {
-                        MovieTicketRequest movieTicketRequest =
-                                mapper.readValue(jsonNode.toString(), MovieTicketRequest.class);
-                        businessLogic.processMovieTicketRequest(movieTicketRequest);
+                    case "LoginRequest": 
+                    case "NewAccountRequest":
+                    case "MovieTicketRequest":
+                    case "MovieListRequest": {
+                        businessLogic.processRequest(jsonString, topicName);
                     }
                         break;
                     default: {

@@ -1,6 +1,5 @@
 package com.kafka;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +8,7 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
@@ -19,7 +19,6 @@ import org.springframework.kafka.listener.CommonErrorHandler;
 import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.util.backoff.FixedBackOff;
-import com.SchemaService;
 
 /*
  * Responsible handling all kafka related operations such as producing and comnsuming topics from
@@ -27,8 +26,13 @@ import com.SchemaService;
  */
 @Configuration
 public class KafkaConfig {
-
     private static final Logger LOG = LoggerFactory.getLogger(KafkaService.class);
+
+    @Value("${spring.kafka.bootstrap-servers}")
+    private String kafkaServer;
+
+    @Value("${kafka.topics}")
+    private List<String> topicList;
     
     @Bean
     public KafkaTemplate<Void, String> kafkaTemplate() {
@@ -49,8 +53,8 @@ public class KafkaConfig {
     @Bean
     public Map<String, Object> producerConfigs() {
         Map<String, Object> props = new HashMap<>();
-        LOG.info("[KAFKA] Configuring Kafka producer (kafka:9092)");
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
+        LOG.info("[KAFKA] Configuring Kafka producer with server: " + kafkaServer);
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaServer);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         // More configs can go here
@@ -70,8 +74,9 @@ public class KafkaConfig {
      */
     @Bean
     public List<NewTopic> createKafkaTopics() {
-        List<NewTopic> topics = Arrays.stream(SchemaService.values())
-                .map(topicType -> new NewTopic(topicType.getTopicName(), 1, (short) 1)).toList();
+        List<NewTopic> topics = topicList.stream()
+            .map(topicName -> new NewTopic(topicName, 1, (short) 1))
+            .toList();
         topics.forEach(topic -> LoggerFactory.getLogger(KafkaConfig.class)
                 .info("[KAFKA] Creating Kafka topic: " + topic.name()));
         return topics;
